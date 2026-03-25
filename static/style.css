@@ -1,0 +1,28 @@
+body {
+  background-color: #f7f9fc;
+}
+
+.card {
+  border: none;
+  border-radius: 0.8rem;
+}
+
+.priority-high {
+  background-color: #dc3545;
+  color: #fff;
+}
+
+.priority-medium {
+  background-color: #ffc107;
+  color: #000;
+}
+
+.priority-low {
+  background-color: #198754;
+  color: #fff;
+}
+
+.table td,
+.table th {
+  vertical-align: middle;
+}
