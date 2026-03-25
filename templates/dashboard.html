@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+  <h1 class="h3 mb-0">Welcome, {{ user.username }}</h1>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white">
+        <h2 class="h5 mb-0">Add New Task</h2>
+      </div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('add_task') }}">
+          <div class="mb-3">
+            <label for="subject" class="form-label">Subject</label>
+            <input type="text" class="form-control" id="subject" name="subject" required>
+          </div>
+          <div class="mb-3">
+            <label for="deadline" class="form-label">Deadline</label>
+            <input type="datetime-local" class="form-control" id="deadline" name="deadline" required>
+          </div>
+          <div class="mb-3">
+            <label for="priority" class="form-label">Priority</label>
+            <select class="form-select" id="priority" name="priority" required>
+              <option value="High">High</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="Low">Low</option>
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">Add Task</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mt-4">
+      <div class="card-header bg-white">
+        <h2 class="h5 mb-0">Upcoming Deadlines (7 days)</h2>
+      </div>
+      <ul class="list-group list-group-flush">
+        {% if upcoming_tasks %}
+          {% for task in upcoming_tasks %}
+            <li class="list-group-item d-flex justify-content-between align-items-start">
+              <div>
+                <div class="fw-semibold">{{ task.subject }}</div>
+                <small class="text-muted">{{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</small>
+              </div>
+              <span class="badge priority-{{ task.priority|lower }}">{{ task.priority }}</span>
+            </li>
+          {% endfor %}
+        {% else %}
+          <li class="list-group-item text-muted">No upcoming deadlines.</li>
+        {% endif %}
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-header bg-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <h2 class="h5 mb-0">Your Tasks</h2>
+        <form method="get" action="{{ url_for('dashboard') }}" class="d-flex gap-2">
+          <select class="form-select form-select-sm" name="priority" onchange="this.form.submit()">
+            <option value="" {% if not selected_priority %}selected{% endif %}>All Priorities</option>
+            <option value="High" {% if selected_priority == 'High' %}selected{% endif %}>High</option>
+            <option value="Medium" {% if selected_priority == 'Medium' %}selected{% endif %}>Medium</option>
+            <option value="Low" {% if selected_priority == 'Low' %}selected{% endif %}>Low</option>
+          </select>
+        </form>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Subject</th>
+              <th>Deadline</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if tasks %}
+              {% for task in tasks %}
+                <tr>
+                  <td>{{ task.subject }}</td>
+                  <td>{{ task.deadline.strftime('%Y-%m-%d %H:%M') }}</td>
+                  <td>
+                    <span class="badge priority-{{ task.priority|lower }}">{{ task.priority }}</span>
+                  </td>
+                  <td>
+                    {% if task.status == 'Completed' %}
+                      <span class="badge text-bg-success">Completed</span>
+                    {% else %}
+                      <span class="badge text-bg-secondary">Pending</span>
+                    {% endif %}
+                  </td>
+                  <td class="text-end">
+                    {% if task.status != 'Completed' %}
+                      <a href="{{ url_for('complete_task', task_id=task.id) }}" class="btn btn-sm btn-success">Complete</a>
+                    {% endif %}
+                    <a href="{{ url_for('delete_task', task_id=task.id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+                  </td>
+                </tr>
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="5" class="text-center text-muted py-4">No tasks found.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
